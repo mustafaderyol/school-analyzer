@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Bölge Yönetimi — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">← Yönetim Paneline Dön</a>
+        <h1>📍 Bölgeler (London Areas)</h1>
+        <p class="subtitle">İngiltere'deki okulların konumları ve bölgelerini yönetin.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('admin.area_new') }}" class="btn btn-primary btn-glow">
+            <span>+</span> Yeni Bölge Ekle
+        </a>
+    </div>
+</div>
+
+<div class="form-card">
+    <div style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 25%;">Bölge Adı</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 10%;">Zone</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 15%;">Güvenlik Notu</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 35%;">Açıklama</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); text-align: right;">Aksiyonlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for area in areas %}
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.02)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td class="question-cell" style="padding: 1rem; font-weight: 500;">{{ area.name }}</td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ area.zone or '-' }}</td>
+                    <td style="padding: 1rem;">
+                        {% if area.safety_rating %}
+                        <div class="rating-badge"
+                            style="display:inline-flex; align-items:center; gap:0.3rem; background:rgba(255,255,255,0.05); padding:0.2rem 0.6rem; border-radius:10px;">
+                            <span style="color:var(--warning);">★</span> {{ area.safety_rating }}/10
+                        </div>
+                        {% else %}
+                        <span style="color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="answer-cell" style="padding: 1rem; color: var(--text-secondary);">{{ area.description or
+                        '-' }}</td>
+                    <td
+                        style="padding: 1rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                        <a href="{{ url_for('admin.area_edit', area_id=area.id) }}"
+                            class="btn btn-ghost btn-sm">Düzenle</a>
+                        <form action="{{ url_for('admin.area_delete', area_id=area.id) }}" method="POST"
+                            onsubmit="return confirm('Bu bölgeyi silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="btn btn-ghost btn-danger btn-sm"
+                                style="background: none; border: 1px solid var(--danger); color: var(--danger);">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not areas %}
+                <tr>
+                    <td colspan="5" class="empty-state" style="padding: 3rem 1rem;">
+                        <div class="empty-icon" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">🗺️</div>
+                        <h3 style="color: var(--text-secondary); margin-bottom: 0.5rem;">Henüz hiç bölge eklenmemiş</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Sağ üstteki butondan yeni bir bölge
+                            ekleyerek başlayabilirsiniz.</p>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

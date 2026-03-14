@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="javascript:history.back()" class="back-link">← Geri Dön</a>
+        <h1>{{ 'Düzenle: ' if item else 'Yeni: ' }}{{ title }}</h1>
+    </div>
+</div>
+
+<div class="form-container dashboard-card">
+    <form method="POST" class="styled-form">
+        {% for field in fields %}
+        <div class="form-group">
+            <label for="{{ field.name }}">{{ field.label }} {% if field.required %}<span class="required">*</span>{%
+                endif %}</label>
+
+            {% if field.type == 'textarea' %}
+            <textarea name="{{ field.name }}" id="{{ field.name }}" rows="4" class="form-control" {% if field.required
+                %}required{% endif %}>{{ item[field.name] if item else '' }}</textarea>
+            {% elif field.type == 'checkbox' %}
+            <div class="checkbox-wrapper">
+                <input type="checkbox" name="{{ field.name }}" id="{{ field.name }}" {% if item and item[field.name]
+                    %}checked{% endif %}>
+                <span class="checkbox-label">Evet / Aktif</span>
+            </div>
+            {% elif field.type == 'color' %}
+            <input type="color" name="{{ field.name }}" id="{{ field.name }}"
+                value="{{ item[field.name] if item else '#6c63ff' }}" class="form-control"
+                style="height: 50px; padding: 5px;">
+            {% else %}
+            <input type="{{ field.type }}" name="{{ field.name }}" id="{{ field.name }}"
+                value="{{ item[field.name] if item else '' }}" class="form-control" {% if field.required %}required{%
+                endif %}>
+            {% endif %}
+
+            {% if field.help %}
+            <small class="form-help">{{ field.help }}</small>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary btn-lg">Kaydet</button>
+            <a href="javascript:history.back()" class="btn btn-ghost btn-lg">İptal</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

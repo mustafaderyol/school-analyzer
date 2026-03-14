@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}{{ school.name }} — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1>{{ school.name }}</h1>
+        <div class="school-meta-inline">
+            {% if school.city %}<span>📍 {{ school.city }}</span>{% endif %}
+            {% if school.area %}<span class="badge badge-info">{{ school.area.name }}</span>{% endif %}
+            {% if school.google_rating %}<span>⭐ {{ school.google_rating }}/5</span>{% endif %}
+            {% if school.website %}<a href="{{ school.website }}" target="_blank" class="link-external">🔗 Website</a>{% endif %}
+        </div>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('schools.full_report', school_id=school.id) }}" class="btn btn-accent">📋 Tüm Detaylar</a>
+        <a href="{{ url_for('schools.edit_school', school_id=school.id) }}" class="btn btn-outline">Düzenle</a>
+        <form method="POST" action="{{ url_for('schools.delete_school', school_id=school.id) }}"
+              onsubmit="return confirm('Bu okulu silmek istediğinize emin misiniz?');" style="display:inline">
+            <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+        </form>
+    </div>
+</div>
+
+<div class="detail-progress">
+    <div class="progress-label">
+        <span>Cevaplanan Sorular</span>
+        <span class="progress-value">{{ school.answer_count }} / {{ school.total_questions }}</span>
+    </div>
+    <div class="progress-bar progress-bar-lg">
+        <div class="progress-fill" style="width: {{ school.completion_percentage }}%"></div>
+    </div>
+</div>
+
+<div class="school-highlights">
+    {% if school.facilities %}
+    <div class="highlight-group">
+        <h3>🏢 Tesisler</h3>
+        <div class="highlight-tags">
+            {% for f in school.facilities_list %}
+            <span class="tag tag-facility" title="{{ f.description }}">{{ f.icon }} {{ f.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if school.activities %}
+    <div class="highlight-group">
+        <h3>🎾 Aktiviteler</h3>
+        <div class="highlight-tags">
+            {% for a in school.activities_list %}
+            <span class="tag tag-activity" title="{{ a.description }}">{{ a.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if school.dietary_options %}
+    <div class="highlight-group">
+        <h3>🥗 Diyet Seçenekleri</h3>
+        <div class="highlight-tags">
+            {% for d in school.dietary_options_list %}
+            <span class="tag tag-dietary">{{ d.name }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.school-highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.highlight-group h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    color: var(--text-muted);
+    margin-bottom: 0.75rem;
+}
+
+.highlight-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tag {
+    padding: 0.4rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.tag-facility {
+    background: rgba(108, 99, 255, 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(108, 99, 255, 0.2);
+}
+
+.tag-activity {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.tag-dietary {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.tag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+</style>
+
+<div class="category-accordion">
+    {% for category in categories %}
+    <div class="category-section">
+        <h2 class="category-title" onclick="toggleCategory(this)">
+            <span>{{ category.name }}</span>
+            <span class="chevron">▼</span>
+        </h2>
+        <div class="category-content">
+            {% for sub in category.subcategories %}
+            <div class="subcategory-row">
+                <div class="subcategory-info">
+                    <h3>{{ sub.name }}</h3>
+                    <span class="question-count">{{ sub.questions|length }} soru</span>
+                </div>
+                <div class="subcategory-status">
+                    {% set answered = [] %}
+                    {% for q in sub.questions %}
+                        {% if q.id in answer_map %}
+                            {% if answered.append(1) %}{% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    <span class="status-badge {% if answered|length == sub.questions|length %}status-complete{% elif answered|length > 0 %}status-partial{% else %}status-empty{% endif %}">
+                        {{ answered|length }}/{{ sub.questions|length }}
+                    </span>
+                </div>
+                <a href="{{ url_for('answers.answer_subcategory', school_id=school.id, subcategory_id=sub.id) }}"
+                   class="btn btn-sm {% if answered|length == sub.questions|length %}btn-outline{% else %}btn-primary{% endif %}">
+                    {% if answered|length == sub.questions|length %}Görüntüle{% elif answered|length > 0 %}Devam Et{% else %}Cevapla{% endif %}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

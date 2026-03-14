@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Kategoriler — Yönetim{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">← Yönetim Paneline Dön</a>
+        <h1>Kategoriler</h1>
+        <p class="subtitle">Ana değerlendirme başlıkları (Örn: Akademik, Konaklama)</p>
+    </div>
+    <a href="{{ url_for('admin.category_new') }}" class="btn btn-primary">+ Yeni Kategori Ekle</a>
+</div>
+
+{% if categories %}
+<div class="comparison-category">
+    <div class="table-scroll">
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th style="width: 50px; text-align: center;">Sıra</th>
+                    <th style="width: 50px; text-align: center;">İkon</th>
+                    <th>Kategori Adı</th>
+                    <th>Açıklama</th>
+                    <th style="width: 150px; text-align: right;">Aksiyonlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr class="row-critical">
+                    <td style="text-align: center; color: var(--text-muted);">{{ category.display_order }}</td>
+                    <td style="text-align: center; font-size: 1.2rem;">{{ category.icon or '' }}</td>
+                    <td class="question-cell">{{ category.name }}</td>
+                    <td class="answer-cell">{{ category.description or '-' }}</td>
+                    <td style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <a href="{{ url_for('admin.category_edit', cat_id=category.id) }}"
+                            class="btn btn-ghost btn-sm">Düzenle</a>
+                        <form action="{{ url_for('admin.category_delete', cat_id=category.id) }}" method="POST"
+                            onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="btn btn-ghost btn-danger btn-sm"
+                                style="background: none; border: 1px solid var(--danger); color: var(--danger);">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📂</div>
+    <h2>Kategori Bulunamadı</h2>
+    <p>Sisteme henüz ana kategori kaydedilmemiş.</p>
+</div>
+{% endif %}
+{% endblock %}

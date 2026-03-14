@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Düzenle: ' ~ question.question_text[:20] ~ '...' if question else 'Yeni Soru' }} — Yönetim{%
+endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.question_list') }}" class="back-link">← Sorulara Dön</a>
+        <h1>{{ 'Soru Düzenle' if question else 'Yeni Soru Ekle' }}</h1>
+    </div>
+</div>
+
+<form method="POST" class="form-card" style="max-width: 900px; margin: 0 auto;">
+
+    <div class="form-section">
+        <h2 class="form-section-title">Konumlandırma</h2>
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="subcategory_id">Bağlı Olduğu Alt Kategori *</label>
+                <select id="subcategory_id" name="subcategory_id" required>
+                    <option value="">Seçiniz...</option>
+                    {% for sub in subcategories %}
+                    <option value="{{ sub.id }}" {% if question and question.subcategory_id==sub.id %}selected{% endif
+                        %}>
+                        {{ sub.category.name }} > {{ sub.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="display_order">Görünüm Sırası (Aynı kategori içindeki sıralama)</label>
+                <input type="number" id="display_order" name="display_order"
+                    value="{{ question.display_order if question else '0' }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="form-section-title">İçerik</h2>
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="question_text">Soru Metni (Türkçe) *</label>
+                <input type="text" id="question_text" name="question_text" required
+                    placeholder="Örn: Haftada kaç saat ders var?"
+                    value="{{ question.question_text if question else '' }}">
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="question_text_en">Soru Metni (İngilizce)</label>
+                <input type="text" id="question_text_en" name="question_text_en" placeholder="Opsiyonel çeviri..."
+                    value="{{ question.question_text_en if question else '' }}">
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="help_text">Yardımcı Metin / Açıklama</label>
+                <textarea id="help_text" name="help_text" rows="2"
+                    placeholder="Formda sorunun altında küçük gri yazıyla görünür.">{{ question.help_text if question else '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="form-section-title">Veri ve Davranış Tipi</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="answer_type_id">Soru Tipi (Cevap Formatı) *</label>
+                <select id="answer_type_id" name="answer_type_id" required>
+                    <option value="">Seçiniz...</option>
+                    {% for atype in answer_types %}
+                    <option value="{{ atype.id }}" {% if question and question.answer_type_id==atype.id %}selected{%
+                        endif %}>
+                        {{ atype.label_tr }} ({{ atype.code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="unit">Birim (Örn: £, Saat, Dakika)</label>
+                <input type="text" id="unit" name="unit" placeholder="Sadece sayısal tipler için gösterilir..."
+                    value="{{ question.unit if question else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="min_value">Min. Değer (Sayısal vb.)</label>
+                <input type="number" id="min_value" name="min_value" step="0.01"
+                    value="{{ question.min_value if question else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="max_value">Max. Değer (Sayısal vb.)</label>
+                <input type="number" id="max_value" name="max_value" step="0.01"
+                    value="{{ question.max_value if question else '' }}">
+            </div>
+
+            <div class="form-group">
+                <label for="comparison_mode">Karşılaştırma Modu</label>
+                <select id="comparison_mode" name="comparison_mode">
+                    <option value="neutral" {% if question and question.comparison_mode=='neutral' %}selected{% endif
+                        %}>Nötr (Sadece Göster)</option>
+                    <option value="high_better" {% if question and question.comparison_mode=='high_better' %}selected{%
+                        endif %}>Yüksek Olan Daha İyi (Yeşil)</option>
+                    <option value="low_better" {% if question and question.comparison_mode=='low_better' %}selected{%
+                        endif %}>Düşük Olan Daha İyi (Yeşil)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <h2 class="form-section-title">Görünürlük ve Filtreleme</h2>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="checkbox-label"
+                    style="padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                    <input type="checkbox" name="is_critical" {% if question and question.is_critical %}checked{% endif
+                        %}>
+                    <div>
+                        <span style="font-weight: 600; color: var(--warning);">⚡ Kritik Soru (Hızlı Eleme)</span>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Bu soru, genel
+                            "Hızlı Eleme" tablosunda kısayol olarak listelenir.</div>
+                    </div>
+                </label>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-label"
+                    style="padding: 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                    <input type="checkbox" name="is_comparable" {% if not question or (question and
+                        question.is_comparable) %}checked{% endif %}>
+                    <div>
+                        <span style="font-weight: 600;">Yan Yana Karşılaştırılabilir</span>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Karşılaştırma
+                            tablosunda yer alsın mı?</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('admin.question_list') }}" class="btn btn-ghost">İptal</a>
+        <button type="submit" class="btn btn-primary">
+            {{ 'Güncelle' if question else 'Kaydet' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

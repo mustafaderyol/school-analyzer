@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} — Yönetim Paneli{% endblock %}
+
+{% block content %}
+{# Helper logic for the "New" button URL because of varied naming conventions #}
+{% set new_url_name = 'admin.' + type.rstrip('s') + '_edit' %}
+{% if type == 'accreditations' %}{% set new_url_name = 'admin.accreditation_edit' %}
+{% elif type == 'certifications' %}{% set new_url_name = 'admin.certification_edit' %}
+{% elif type == 'methodologies' %}{% set new_url_name = 'admin.methodology_edit' %}
+{% elif type == 'course_types' %}{% set new_url_name = 'admin.course_type_edit' %}
+{% elif type == 'accommodation_types' %}{% set new_url_name = 'admin.accommodation_type_edit' %}
+{% elif type == 'metro_lines' %}{% set new_url_name = 'admin.metro_line_edit' %}
+{% elif type == 'meal_plans' %}{% set new_url_name = 'admin.meal_plan_edit' %}
+{% elif type == 'facility_types' %}{% set new_url_name = 'admin.facility_type_edit' %}
+{% elif type == 'support_services' %}{% set new_url_name = 'admin.support_service_edit' %}
+{% elif type == 'activities' %}{% set new_url_name = 'admin.activity_edit' %}
+{% elif type == 'dietary_options' %}{% set new_url_name = 'admin.dietary_option_edit' %}
+{% elif type == 'cancellation_policies' %}{% set new_url_name = 'admin.cancellation_policy_edit' %}
+{% endif %}
+
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.global_definitions') }}" class="back-link">← Tanımlara Dön</a>
+        <h1>{{ title }}</h1>
+    </div>
+    <a href="{{ url_for(new_url_name) }}" class="btn btn-primary">+ Yeni Ekle</a>
+</div>
+
+<div class="section-header">
+    <a href="{{ url_for(new_url_name) }}" class="btn btn-primary">+ Yeni Ekle</a>
+</div>
+
+<div class="table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                {% for field in fields %}
+                <th>{{ field | replace('_', ' ') | title }}</th>
+                {% endfor %}
+                <th style="width: 150px; text-align: right;">İşlemler</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                {% for field in fields %}
+                <td>
+                    {% if field == 'color' %}
+                    <span
+                        style="display:inline-block; width:20px; height:20px; background:{{ item[field] }}; border-radius:50%; vertical-align:middle; margin-right:5px;"></span>
+                    {{ item[field] }}
+                    {% else %}
+                    {{ item[field] }}
+                    {% endif %}
+                </td>
+                {% endfor %}
+                <td style="text-align: right;">
+                    <div class="action-buttons">
+                        <a href="{{ url_for(new_url_name, id=item.id) }}" class="btn btn-ghost btn-sm">Düzenle</a>
+                        <form action="{{ url_for(new_url_name.replace('_edit', '_delete'), id=item.id) }}" method="POST"
+                            style="display: inline;" onsubmit="return confirm('Silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="{{ fields|length + 1 }}" class="text-center">Henüz kayıt bulunmuyor.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

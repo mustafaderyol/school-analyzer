@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Cevap Tipleri — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">← Yönetim Paneline Dön</a>
+        <h1>🔣 Cevap Tipleri (Answer Types)</h1>
+        <p class="subtitle">Sistemdeki soru-cevap tiplerini ve teknik kodlarını görüntüleyin.</p>
+    </div>
+</div>
+
+<div class="form-card">
+    <div style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 20%;">Tip Adı</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 20%;">Teknik Kod</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 60%;">Açıklama</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for at in answer_types %}
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.02)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; font-weight: 500;">{{ at.label_tr }}</td>
+                    <td style="padding: 1rem;">
+                        <code
+                            style="background: rgba(108, 99, 255, 0.1); color: var(--accent); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem;">{{ at.code }}</code>
+                    </td>
+                    <td style="padding: 1rem; color: var(--text-secondary); font-size: 0.9rem;">{{ at.description_tr or
+                        '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div style="margin-top: 1.5rem;">
+    <p style="color: var(--text-muted); font-size: 0.85rem; font-style: italic;">
+        * Cevap tipleri sistemin çalışma mantığına (JS/Python) doğrudan bağlı olduğu için şu anda sadece görüntüleme
+        amaçlıdır.
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Soru Seçenekleri — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.question_list') }}" class="back-link">← Sorular Listesine Dön</a>
+        <h1>📋 Seçenekler: {{ question.question_text[:100] }}{% if question.question_text|length > 100 %}...{% endif %}
+        </h1>
+        <p class="subtitle">Bu soru için tanımlanmış seçenekleri yönetin.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{{ url_for('admin.option_new', q_id=question.id) }}" class="btn btn-primary btn-glow">
+            <span>+</span> Yeni Seçenek Ekle
+        </a>
+    </div>
+</div>
+
+<div class="form-card">
+    <div style="overflow-x: auto;">
+        <table class="table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid var(--border); text-align: left;">
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 10%;">Sıra</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 40%;">Seçenek Metni (TR)</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 20%;">Değer (Internal)</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); width: 10%;">Puan</th>
+                    <th style="padding: 1rem; color: var(--text-secondary); text-align: right;">Aksiyonlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for opt in options %}
+                <tr style="border-bottom: 1px solid var(--border); transition: background 0.2s;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.02)'"
+                    onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ opt.display_order }}</td>
+                    <td style="padding: 1rem; font-weight: 500;">{{ opt.option_text }}</td>
+                    <td style="padding: 1rem; color: var(--text-muted);">{{ opt.option_value or '-' }}</td>
+                    <td style="padding: 1rem;">
+                        {% if opt.score is not none %}
+                        <span
+                            class="badge {% if opt.score > 0 %}badge-success{% elif opt.score < 0 %}badge-danger{% else %}badge-info{% endif %}">
+                            {{ opt.score }}
+                        </span>
+                        {% else %}
+                        <span style="color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td
+                        style="padding: 1rem; text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                        <a href="{{ url_for('admin.option_edit', opt_id=opt.id) }}"
+                            class="btn btn-ghost btn-sm">Düzenle</a>
+                        <form action="{{ url_for('admin.option_delete', opt_id=opt.id) }}" method="POST"
+                            onsubmit="return confirm('Bu seçeneği silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="btn btn-ghost btn-danger btn-sm"
+                                style="background: none; border: 1px solid var(--danger); color: var(--danger);">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not options %}
+                <tr>
+                    <td colspan="5" class="empty-state" style="padding: 3rem 1rem;">
+                        <div class="empty-icon" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;">📋</div>
+                        <h3 style="color: var(--text-secondary); margin-bottom: 0.5rem;">Henüz seçenek eklenmemiş</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Çoktan seçmeli sorular için buradan
+                            seçenekler eklemelisiniz.</p>
+                    </td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

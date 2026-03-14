@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}{{ school.name }} — Tüm Detaylar — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('schools.detail', school_id=school.id) }}" class="back-link">← {{ school.name }} (Özet)</a>
+        <h1>{{ school.name }} — Tüm Detaylar</h1>
+        <div class="school-meta-inline">
+            {% if school.city %}<span>📍 {{ school.city }}</span>{% endif %}
+            {% if school.area %}<span class="badge badge-info">{{ school.area.name }}</span>{% endif %}
+            {% if school.google_rating %}<span>⭐ {{ school.google_rating }}/5</span>{% endif %}
+        </div>
+    </div>
+    <div class="page-header-actions">
+        <button onclick="window.print()" class="btn btn-outline">🖨️ Yazdır</button>
+    </div>
+</div>
+
+<div class="report-summary">
+    <div class="summary-section">
+        <h3>🏢 Genel Bilgiler</h3>
+        <p><strong>Kuruluş:</strong> {{ school.year_founded or '-' }}</p>
+        <p><strong>Bölge:</strong> {{ school.area.name if school.area else '-' }}</p>
+        <p><strong>Google:</strong> ⭐ {{ school.google_rating or '-' }}/5</p>
+        <p><strong>Trustpilot:</strong> ⭐ {{ school.trustpilot_rating or '-' }}/5</p>
+    </div>
+    
+    <div class="summary-section">
+        <h3>✨ Öne Çıkan İmkanlar</h3>
+        <div class="summary-tags">
+            {% for f in school.facilities_list %}<span class="tag tag-blue">{{ f.icon }} {{ f.name }}</span>{% endfor %}
+            {% for a in school.activities_list %}<span class="tag tag-green">{{ a.name }}</span>{% endfor %}
+            {% for d in school.dietary_options_list %}<span class="tag tag-orange">{{ d.name }}</span>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+.report-summary {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+.summary-section h3 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    color: var(--accent);
+}
+.summary-section p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+.summary-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.tag {
+    padding: 0.3rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.tag-blue { background: rgba(108, 99, 255, 0.1); color: var(--accent); }
+.tag-green { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.tag-orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+</style>
+
+<div class="report-container">
+    {% for category in categories %}
+    <div class="report-category">
+        <h2 class="report-category-title">{{ category.name }}</h2>
+        
+        {% for sub in category.subcategories %}
+        <div class="report-subcategory">
+            <h3 class="report-sub-title">{{ sub.name }}</h3>
+            
+            <div class="table-scroll">
+                <table class="report-table">
+                    <thead>
+                        <tr>
+                            <th class="col-q">Soru</th>
+                            <th class="col-a">Cevap</th>
+                            <th class="col-n">Notlar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for question in sub.questions %}
+                        {% set ans = answer_map.get(question.id) %}
+                        <tr class="{% if question.is_critical %}row-critical{% endif %}">
+                            <td class="cell-q">
+                                {{ question.question_text }}
+                                {% if question.is_critical %}<span class="critical-dot"></span>{% endif %}
+                            </td>
+                            <td class="cell-a {% if ans %}has-answer{% endif %}
+                                {% if question.answer_type.code == 'boolean' and ans %}
+                                    {% if ans.answer_boolean %}bool-yes{% else %}bool-no{% endif %}
+                                {% endif %}">
+                                {{ ans.display_value if ans else '-' }}
+                            </td>
+                            <td class="cell-n">
+                                {{ ans.notes if ans and ans.notes else '' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+/* Spécific Styles for Full Report */
+.report-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.report-category {
+    margin-bottom: 3rem;
+}
+
+.report-category:last-child {
+    margin-bottom: 0;
+}
+
+.report-category-title {
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+}
+
+.report-subcategory {
+    margin-bottom: 2rem;
+}
+
+.report-sub-title {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.report-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+
+.report-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(42, 45, 62, 0.5);
+    vertical-align: top;
+}
+
+.col-q { width: 45%; }
+.col-a { width: 25%; }
+.col-n { width: 30%; }
+
+.cell-q {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.cell-n {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+@media print {
+    body { background: white; color: black; }
+    .navbar, .footer, .btn, .page-header-actions, .back-link { display: none !important; }
+    .report-container { border: none; padding: 0; box-shadow: none; background: white; }
+    .report-category { page-break-inside: avoid; }
+    .report-table th { background: #f3f4f6; color: #111827; }
+    .report-table td { border-bottom: 1px solid #e5e7eb; }
+    .cell-q { color: #111827; }
+    .report-category-title { color: #111827; border-bottom-color: #e5e7eb; }
+}
+</style>
+{% endblock %}

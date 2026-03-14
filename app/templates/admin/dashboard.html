@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+{% block title %}Yönetim Paneli — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1>⚙️ Yönetim Paneli</h1>
+        <p class="subtitle">Sistem yapılandırması ve veri yönetimi</p>
+    </div>
+</div>
+
+<style>
+    /* Dashboard Specific Styles */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .dashboard-widget {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-widget::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), #a855f7);
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .dashboard-widget:hover {
+        transform: translateY(-5px);
+        border-color: rgba(108, 99, 255, 0.4);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 99, 255, 0.1);
+    }
+
+    .dashboard-widget:hover::before {
+        opacity: 1;
+    }
+
+    .widget-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+        transition: transform 0.3s ease;
+    }
+
+    .dashboard-widget:hover .widget-icon {
+        transform: scale(1.1);
+    }
+
+    .widget-title {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .widget-desc {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        line-height: 1.5;
+        flex: 1;
+    }
+
+    .widget-actions {
+        display: flex;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    .widget-btn {
+        flex: 1;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1rem;
+        border-radius: var(--radius-sm);
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: var(--transition);
+        text-decoration: none;
+    }
+
+    .btn-manage {
+        background: rgba(108, 99, 255, 0.1);
+        color: var(--accent);
+        border: 1.5px solid rgba(108, 99, 255, 0.3);
+    }
+
+    .btn-manage:hover {
+        background: rgba(108, 99, 255, 0.2);
+        border-color: var(--accent);
+        color: #fff;
+    }
+
+    .btn-add {
+        background: var(--accent);
+        color: #fff;
+        border: 1.5px solid var(--accent);
+        box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-add:hover {
+        background: var(--accent-hover);
+        border-color: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px var(--accent-glow);
+    }
+</style>
+
+<div class="dashboard-grid">
+    <!-- Categories -->
+    <div class="dashboard-widget">
+        <div class="widget-icon">📂</div>
+        <h3 class="widget-title">
+            Kategoriler
+            <span class="badge badge-info" style="font-size: 0.8rem; vertical-align: middle;">{{ stats.categories_count
+                }}</span>
+        </h3>
+        <p class="widget-desc">Ana değerlendirme başlıklarını oluşturun ve ikonlarla görselleştirin.</p>
+        <div class="widget-actions">
+            <a href="{{ url_for('admin.category_list') }}" class="widget-btn btn-manage">📁 Listele</a>
+            <a href="{{ url_for('admin.category_new') }}" class="widget-btn btn-add">➕ Yeni</a>
+        </div>
+    </div>
+
+    <!-- Subcategories -->
+    <div class="dashboard-widget">
+        <div class="widget-icon">📑</div>
+        <h3 class="widget-title">
+            Alt Kategoriler
+            <span class="badge badge-info" style="font-size: 0.8rem; vertical-align: middle;">{{
+                stats.subcategories_count }}</span>
+        </h3>
+        <p class="widget-desc">Kategorileri daha alt bağlamlara bölün (örn: Üniversite Bağlantıları).</p>
+        <div class="widget-actions">
+            <a href="{{ url_for('admin.subcategory_list') }}" class="widget-btn btn-manage">📁 Listele</a>
+            <a href="{{ url_for('admin.subcategory_new') }}" class="widget-btn btn-add">➕ Yeni</a>
+        </div>
+    </div>
+
+    <!-- Questions -->
+    <div class="dashboard-widget">
+        <div class="widget-icon">❓</div>
+        <h3 class="widget-title">
+            Sorular
+            <span class="badge badge-info" style="font-size: 0.8rem; vertical-align: middle;">{{ stats.questions_count
+                }}</span>
+        </h3>
+        <p class="widget-desc">Okul kıyaslamasında kullanılacak detaylı değerlendirme sorularını ayarlayın.</p>
+        <div class="widget-actions">
+            <a href="{{ url_for('admin.question_list') }}" class="widget-btn btn-manage">📁 Listele</a>
+            <a href="{{ url_for('admin.question_new') }}" class="widget-btn btn-add">➕ Yeni</a>
+        </div>
+    </div>
+
+    <!-- London Areas -->
+    <div class="dashboard-widget">
+        <div class="widget-icon">📍</div>
+        <h3 class="widget-title">
+            Bölgeler
+            <span class="badge badge-info" style="font-size: 0.8rem; vertical-align: middle;">{{ stats.areas_count
+                }}</span>
+        </h3>
+        <p class="widget-desc">Londra içindeki bölgeleri ve güvenlik bilgilerini yönetin.</p>
+        <div class="widget-actions">
+            <a href="{{ url_for('admin.area_list') }}" class="widget-btn btn-manage">📁 Listele</a>
+            <a href="{{ url_for('admin.area_new') }}" class="widget-btn btn-add">➕ Yeni</a>
+        </div>
+    </div>
+
+    <!-- Global Definitions -->
+    <div class="dashboard-widget">
+        <div class="widget-icon">⚙️</div>
+        <h3 class="widget-title">
+            Sistem Tanımları
+            <span class="badge badge-info" style="font-size: 0.8rem; vertical-align: middle;">{{ stats.definitions_total
+                }}</span>
+        </h3>
+        <p class="widget-desc">Akreditasyonlar, kurs türleri, tesisler ve diğer lookup tablolarını yönetin.</p>
+        <div class="widget-actions">
+            <a href="{{ url_for('admin.global_definitions') }}" class="widget-btn btn-add" style="width: 100%;">🛠️
+                Tümünü Yönet</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

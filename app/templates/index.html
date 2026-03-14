@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block title %}School Analyzer — Dil Okulu Karşılaştırma{% endblock %}
+
+{% block content %}
+<style>
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.stat-value {
+    display: block;
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 0.2rem;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
+}
+
+.stat-icon {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    font-size: 4rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+</style>
+
+<div class="stats-summary">
+    <div class="stat-item">
+        <span class="stat-value">{{ stats.total_schools }}</span>
+        <span class="stat-label">Kayıtlı Okul</span>
+        <div class="stat-icon">🏫</div>
+    </div>
+    <div class="stat-item">
+        <span class="stat-value">{{ stats.total_areas }}</span>
+        <span class="stat-label">Bölge</span>
+        <div class="stat-icon">📍</div>
+    </div>
+    <div class="stat-item">
+        <span class="stat-value">{{ stats.total_questions }}</span>
+        <span class="stat-label">Sistemdeki Soru</span>
+        <div class="stat-icon">❓</div>
+    </div>
+    <div class="stat-item">
+        <span class="stat-value">{{ stats.total_answers }}</span>
+        <span class="stat-label">Verilen Cevap</span>
+        <div class="stat-icon">✍️</div>
+    </div>
+</div>
+
+<div class="section-header">
+    <h2 class="section-title">🏫 Kayıtlı Okullar</h2>
+    <a href="{{ url_for('schools.new_school') }}" class="btn btn-primary btn-glow">+ Yeni Okul Ekle</a>
+</div>
+
+{% if schools %}
+<div class="school-grid">
+    {% for school in schools %}
+    <div class="school-card">
+        <div class="school-card-header">
+            <h3 class="school-name">
+                <a href="{{ url_for('schools.detail', school_id=school.id) }}">{{ school.name }}</a>
+            </h3>
+            {% if school.area %}
+            <span class="badge badge-info">{{ school.area.name }}</span>
+            {% endif %}
+        </div>
+        <div class="school-card-body">
+            <div class="school-meta" style="margin-bottom: 1.5rem;">
+                {% if school.city %}
+                <span class="meta-item">📍 {{ school.city }}</span>
+                {% endif %}
+                {% if school.google_rating %}
+                <span class="meta-item">⭐ {{ school.google_rating }}</span>
+                {% endif %}
+                {% if school.year_founded %}
+                <span class="meta-item">📅 {{ school.year_founded }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="progress-section" style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                <div class="progress-label" style="margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 0.85rem;">
+                    <span style="color: var(--text-secondary);">Analiz Tamamlanma</span>
+                    <span class="progress-value" style="color: var(--accent); font-weight: 700;">%{{ school.completion_percentage }}</span>
+                </div>
+                <div class="progress-bar" style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+                    <div class="progress-fill" style="width: {{ school.completion_percentage }}%; height: 100%; background: linear-gradient(90deg, var(--accent), #a855f7); border-radius: 4px; transition: width 1s ease-out;"></div>
+                </div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-align: right;">
+                    {{ school.answer_count }} soru cevaplandı
+                </div>
+            </div>
+        </div>
+        <div class="school-card-actions" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem;">
+            <a href="{{ url_for('schools.detail', school_id=school.id) }}" class="btn btn-primary btn-sm" style="flex: 2;">Detaylar & Cevapla</a>
+            <a href="{{ url_for('schools.edit_school', school_id=school.id) }}" class="btn btn-ghost btn-sm" style="flex: 1;">Düzenle</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if schools|length >= 2 %}
+<div class="compare-cta" style="margin-top: 4rem; text-align: center; background: linear-gradient(135deg, rgba(108, 99, 255, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%); padding: 3rem; border-radius: var(--radius-lg); border: 1px solid rgba(108, 99, 255, 0.2);">
+    <h3 style="font-size: 1.8rem; margin-bottom: 1rem;">Hazır mısınız?</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">Eklediğiniz okulları tüm kriterler bazında yan yana getirin ve en iyi seçimi yapın.</p>
+    <a href="{{ url_for('compare.compare') }}" class="btn btn-accent btn-lg btn-glow" style="padding: 1rem 3rem; font-size: 1.1rem;">
+        📊 Karşılaştırmayı Başlat
+    </a>
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state" style="padding: 5rem 2rem; background: var(--bg-card); border: 2px dashed var(--border); border-radius: var(--radius-lg);">
+    <div class="empty-icon" style="font-size: 5rem; margin-bottom: 1.5rem;">🏫</div>
+    <h2 style="font-size: 2rem; margin-bottom: 1rem;">Analize Başlayın</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 2.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">Sistemde henüz hiç okul bulunmuyor. İlk okulu ekleyerek detaylı analiz ve karşılaştırma sürecini başlatabilirsiniz.</p>
+    <a href="{{ url_for('schools.new_school') }}" class="btn btn-primary btn-lg btn-glow">İlk Okulu Ekle</a>
+</div>
+{% endif %}
+{% endblock %}

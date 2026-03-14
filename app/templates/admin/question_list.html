@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Sorular — Yönetim{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">← Yönetim Paneline Dön</a>
+        <h1>Sorular</h1>
+        <p class="subtitle">Değerlendirme soruları ve konfigürasyonları</p>
+    </div>
+    <a href="{{ url_for('admin.question_new') }}" class="btn btn-primary">+ Yeni Soru Ekle</a>
+</div>
+
+{% if questions %}
+<div class="comparison-category">
+    <div class="table-scroll">
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th style="width: 250px;">Bağıl Alt Kategori</th>
+                    <th style="width: 50px; text-align: center;">Sıra</th>
+                    <th>Soru Metni</th>
+                    <th style="width: 120px;">Soru Tipi</th>
+                    <th style="width: 80px; text-align: center;">Kritik?</th>
+                    <th style="width: 150px; text-align: right;">Aksiyonlar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in questions %}
+                <tr class="row-critical">
+                    <td class="answer-cell" style="font-size: 0.8rem;">
+                        <strong>{{ q.subcategory.category.name }}</strong><br>
+                        └ {{ q.subcategory.name }}
+                    </td>
+                    <td style="text-align: center; color: var(--text-muted);">{{ q.display_order }}</td>
+                    <td class="question-cell">{{ q.question_text }}</td>
+                    <td class="answer-cell">
+                        <span class="badge badge-info">{{ q.answer_type.label_tr }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        {% if q.is_critical %}
+                        <span class="critical-dot" style="display:inline-block; margin:0;"
+                            title="Kritik (Hızlı Eleme)"></span>
+                        {% else %}
+                        <span style="color: var(--text-muted);">-</span>
+                        {% endif %}
+                    </td>
+                    <td
+                        style="text-align: right; display: flex; gap: 0.5rem; justify-content: flex-end; align-items: center;">
+                        {% if q.answer_type.code in ['single_choice', 'multi_choice'] %}
+                        <a href="{{ url_for('admin.option_list', q_id=q.id) }}" class="btn btn-ghost btn-sm"
+                            title="Seçenekleri Yönet">📋 Seçenekler</a>
+                        {% endif %}
+                        <a href="{{ url_for('admin.question_edit', q_id=q.id) }}"
+                            class="btn btn-ghost btn-sm">Düzenle</a>
+                        <form action="{{ url_for('admin.question_delete', q_id=q.id) }}" method="POST"
+                            onsubmit="return confirm('Bu soruyu silmek istediğinize emin misiniz?');">
+                            <button type="submit" class="btn btn-ghost btn-danger btn-sm"
+                                style="background: none; border: 1px solid var(--danger); color: var(--danger);">Sil</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">❓</div>
+    <h2>Soru Bulunamadı</h2>
+    <p>Sisteme henüz soru eklenmemiş.</p>
+</div>
+{% endif %}
+{% endblock %}

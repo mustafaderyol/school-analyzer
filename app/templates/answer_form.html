@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ school.name }} — {{ subcategory.name }} — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('schools.detail', school_id=school.id) }}" class="back-link">← {{ school.name }}</a>
+        <h1>{{ subcategory.name }}</h1>
+        <p class="subtitle">{{ subcategory.category.name }}</p>
+    </div>
+</div>
+
+<form method="POST" class="answer-form">
+    <div class="questions-list">
+        {% for question in questions %}
+        {% set ans = answer_map.get(question.id) %}
+        <div class="question-card {% if question.is_critical %}question-critical{% endif %}">
+            <div class="question-header">
+                <span class="question-number">{{ loop.index }}</span>
+                <label class="question-text" for="q_{{ question.id }}">
+                    {{ question.question_text }}
+                    {% if question.is_critical %}<span class="critical-badge">Kritik</span>{% endif %}
+                    {% if question.unit %}<span class="unit-badge">{{ question.unit }}</span>{% endif %}
+                </label>
+            </div>
+            <div class="question-input">
+                {% if question.answer_type.code == 'boolean' %}
+                <div class="radio-group">
+                    <label class="radio-label">
+                        <input type="radio" name="q_{{ question.id }}" value="true" {% if ans and
+                            ans.answer_boolean==true %}checked{% endif %}>
+                        <span class="radio-custom yes">Evet</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="q_{{ question.id }}" value="false" {% if ans and
+                            ans.answer_boolean==false %}checked{% endif %}>
+                        <span class="radio-custom no">Hayır</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="q_{{ question.id }}" value="" {% if not ans or ans.answer_boolean is
+                            none %}checked{% endif %}>
+                        <span class="radio-custom neutral">Bilinmiyor</span>
+                    </label>
+                </div>
+
+                {% elif question.answer_type.code == 'number' %}
+                <input type="number" name="q_{{ question.id }}" id="q_{{ question.id }}" step="any"
+                    placeholder="Sayı giriniz"
+                    value="{{ ans.answer_number if ans and ans.answer_number is not none else '' }}">
+
+                {% elif question.answer_type.code == 'rating' %}
+                <div class="rating-group" id="rating_{{ question.id }}">
+                    {% for i in range(5, 0, -1) %}
+                    <label class="star-label" title="{{ i }} Puan">
+                        <input type="radio" name="q_{{ question.id }}" value="{{ i }}" {% if ans and ans.answer_number
+                            is not none and ans.answer_number|int==i %}checked{% endif %}>
+                        <span class="star">★</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                {% elif question.answer_type.code == 'single_choice' %}
+                <div class="select-wrapper">
+                    <select name="q_{{ question.id }}" id="q_{{ question.id }}">
+                        <option value="">Seçiniz...</option>
+                        {% for opt in question.options %}
+                        <option value="{{ opt.id }}" {% if ans and ans.selected_options %} {% for so in
+                            ans.selected_options %} {% if so.option_id==opt.id %}selected{% endif %} {% endfor %} {%
+                            endif %}>
+                            {{ opt.option_text }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                {% elif question.answer_type.code == 'multi_choice' %}
+                <div class="checkbox-group">
+                    {% for opt in question.options %}
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="q_{{ question.id }}" value="{{ opt.id }}" {% if ans and
+                            ans.selected_options %} {% for so in ans.selected_options %} {% if so.option_id==opt.id
+                            %}checked{% endif %} {% endfor %} {% endif %}>
+                        <span>{{ opt.option_text }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <textarea name="q_{{ question.id }}" id="q_{{ question.id }}" rows="2"
+                    placeholder="Cevabınızı yazın...">{{ ans.answer_text if ans else '' }}</textarea>
+                {% endif %}
+
+                <div class="notes-toggle">
+                    <button type="button" class="btn-notes-toggle" onclick="toggleNotes({{ question.id }})">
+                        📝 Not ekle
+                    </button>
+                    <div id="notes_wrapper_{{ question.id }}"
+                        class="notes-wrapper {% if not ans or not ans.notes %}hidden{% endif %}">
+                        <textarea name="notes_{{ question.id }}" placeholder="Ek notlarınız..."
+                            rows="2">{{ ans.notes if ans else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-navigation">
+        {% if prev_sub %}
+        <a href="{{ url_for('answers.answer_subcategory', school_id=school.id, subcategory_id=prev_sub.id) }}"
+            class="btn btn-outline">← {{ prev_sub.name }}</a>
+        {% else %}
+        <div></div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary btn-lg">
+            💾 Kaydet {% if next_sub %}&amp; Devam Et{% endif %}
+        </button>
+
+        {% if next_sub %}
+        <a href="{{ url_for('answers.answer_subcategory', school_id=school.id, subcategory_id=next_sub.id) }}"
+            class="btn btn-ghost">Atla →</a>
+        {% else %}
+        <a href="{{ url_for('schools.detail', school_id=school.id) }}" class="btn btn-ghost">Bitir →</a>
+        {% endif %}
+    </div>
+</form>
+{% endblock %}

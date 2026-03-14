@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dil okulu karşılaştırma ve analiz uygulaması">
+    <title>{% block title %}School Analyzer{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <!-- Left: Logo -->
+            <a href="{{ url_for('schools.index') }}" class="nav-brand">
+                <div class="brand-icon-wrapper">
+                    <span class="brand-icon">🎓</span>
+                </div>
+                <span class="brand-text">School<span class="brand-highlight">Analyzer</span></span>
+            </a>
+
+            <!-- Center: Main Links -->
+            <div class="nav-links">
+                <a href="{{ url_for('schools.index') }}"
+                    class="nav-link {% if request.endpoint == 'schools.index' %}active{% endif %}">
+                    <i class="nav-icon">🏫</i> Okullar
+                </a>
+                <a href="{{ url_for('compare.compare') }}"
+                    class="nav-link {% if request.endpoint == 'compare.compare' %}active{% endif %}">
+                    <i class="nav-icon">📊</i> Karşılaştır
+                </a>
+                <a href="{{ url_for('compare.critical_compare') }}"
+                    class="nav-link nav-link-warning {% if request.endpoint == 'compare.critical_compare' %}active{% endif %}">
+                    <i class="nav-icon">⚡</i> Hızlı Eleme
+                </a>
+            </div>
+
+            <!-- Right: Actions -->
+            <div class="nav-actions">
+                <a href="{{ url_for('admin.dashboard') }}" class="btn btn-ghost btn-icon" title="Yönetim Paneli">
+                    ⚙️ <span class="action-text">Yönetim</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>School Analyzer &copy; 2026 — Dil Okulu Karşılaştırma Aracı</p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+
+</html>

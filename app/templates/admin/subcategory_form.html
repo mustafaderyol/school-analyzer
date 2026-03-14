@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Düzenle: ' ~ subcategory.name if subcategory else 'Yeni Alt Kategori' }} — Yönetim{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.subcategory_list') }}" class="back-link">← Alt Kategorilere Dön</a>
+        <h1>{{ 'Alt Kategori Düzenle' if subcategory else 'Yeni Alt Kategori Ekle' }}</h1>
+    </div>
+</div>
+
+<form method="POST" class="form-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="form-section">
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="category_id">Bağlı Olduğu Ana Kategori *</label>
+                <select id="category_id" name="category_id" required>
+                    <option value="">Seçiniz...</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if subcategory and subcategory.category_id==cat.id %}selected{%
+                        endif %}>
+                        {{ cat.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group form-group-wide">
+                <label for="name">Alt Kategori Adı *</label>
+                <input type="text" id="name" name="name" required placeholder="Örn: Ev/Konaklama Detayları"
+                    value="{{ subcategory.name if subcategory else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="display_order">Görünüm Sırası</label>
+                <input type="number" id="display_order" name="display_order"
+                    value="{{ subcategory.display_order if subcategory else '0' }}">
+            </div>
+            <div class="form-group">
+                <label for="icon">İkon (Emoji)</label>
+                <input type="text" id="icon" name="icon" placeholder="Örn: 🛏️"
+                    value="{{ subcategory.icon if subcategory else '' }}">
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="description">Açıklama</label>
+                <textarea id="description" name="description"
+                    rows="3">{{ subcategory.description if subcategory else '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('admin.subcategory_list') }}" class="btn btn-ghost">İptal</a>
+        <button type="submit" class="btn btn-primary">
+            {{ 'Güncelle' if subcategory else 'Kaydet' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

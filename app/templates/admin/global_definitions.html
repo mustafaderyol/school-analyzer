@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Sistem Tanımları — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.dashboard') }}" class="back-link">← Panele Dön</a>
+        <h1>🛠️ Sistem Tanımları</h1>
+        <p class="subtitle">Tüm referans tablolarını ve sistem değerlerini buradan yönetin</p>
+    </div>
+</div>
+
+<style>
+    .defs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .def-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        transition: var(--transition);
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .def-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-3px);
+        background: rgba(108, 99, 255, 0.05);
+    }
+
+    .def-icon {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .def-info {
+        flex: 1;
+    }
+
+    .def-name {
+        display: block;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .def-count {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+    }
+
+    .def-arrow {
+        color: var(--text-muted);
+        font-size: 1.2rem;
+        opacity: 0.5;
+    }
+
+    .def-card:hover .def-arrow {
+        color: var(--accent);
+        opacity: 1;
+        transform: translateX(3px);
+        transition: all 0.2s ease;
+    }
+</style>
+
+<div class="defs-grid">
+    {% for def in definitions %}
+    <a href="{{ url_for(def.url) if def.url else '#' }}" class="def-card">
+        <div class="def-icon">{{ def.icon }}</div>
+        <div class="def-info">
+            <span class="def-name">{{ def.name }}</span>
+            <span class="def-count">{{ def.count }} kayıt mevcut</span>
+        </div>
+        <div class="def-arrow">→</div>
+    </a>
+    {% endfor %}
+</div>
+
+<div class="info-alert" style="margin-top: 3rem;">
+    <strong>ℹ️ Bilgi:</strong> Bu tanımlar okul profilleri oluşturulurken ve soruların seçeneklerinde referans olarak
+    kullanılır. Kayıt silerken ilişkili okulların etkilenebileceğini unutmayın.
+</div>
+{% endblock %}

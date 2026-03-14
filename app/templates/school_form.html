@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Düzenle: ' + school.name if school else 'Yeni Okul Ekle' }} — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{{ 'Düzenle: ' + school.name if school else '🏫 Yeni Okul Ekle' }}</h1>
+</div>
+
+<form method="POST" class="form-card">
+    <div class="form-section">
+        <h2 class="form-section-title">Temel Bilgiler</h2>
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="name">Okul Adı *</label>
+                <input type="text" id="name" name="name" required placeholder="Okul adı"
+                    value="{{ school.name if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="website">Website</label>
+                <input type="url" id="website" name="website" placeholder="https://..."
+                    value="{{ school.website if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="email">E-posta</label>
+                <input type="email" id="email" name="email" placeholder="info@school.com"
+                    value="{{ school.email if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="phone">Telefon</label>
+                <input type="tel" id="phone" name="phone" placeholder="+44..."
+                    value="{{ school.phone if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="city">Şehir</label>
+                <input type="text" id="city" name="city" value="{{ school.city if school else 'London' }}">
+            </div>
+            <div class="form-group">
+                <label for="country">Ülke</label>
+                <input type="text" id="country" name="country"
+                    value="{{ school.country if school else 'United Kingdom' }}">
+            </div>
+            <div class="form-group">
+                <label for="area_id">Bölge</label>
+                <select id="area_id" name="area_id">
+                    <option value="">Seçiniz...</option>
+                    {% for area in areas %}
+                    <option value="{{ area.id }}" {% if school and school.area_id==area.id %}selected{% endif %}>
+                        {{ area.name }} (Zone {{ area.zone }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="year_founded">Kuruluş Yılı</label>
+                <input type="number" id="year_founded" name="year_founded" min="1900" max="2026"
+                    value="{{ school.year_founded if school else '' }}">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-section">
+        <h2 class="form-section-title">Ek Bilgiler</h2>
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="address">Adres</label>
+                <textarea id="address" name="address" rows="2">{{ school.address if school else '' }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="google_rating">Google Puanı</label>
+                <input type="number" id="google_rating" name="google_rating" min="0" max="5" step="0.1"
+                    value="{{ school.google_rating if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="trustpilot_rating">Trustpilot Puanı</label>
+                <input type="number" id="trustpilot_rating" name="trustpilot_rating" min="0" max="5" step="0.1"
+                    value="{{ school.trustpilot_rating if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_chain" {% if school and school.is_chain %}checked{% endif %}>
+                    <span>Zincir okul mu?</span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label for="chain_name">Zincir Adı</label>
+                <input type="text" id="chain_name" name="chain_name" value="{{ school.chain_name if school else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="chain_branch_count">Şube Sayısı</label>
+                <input type="number" id="chain_branch_count" name="chain_branch_count"
+                    value="{{ school.chain_branch_count if school else '' }}">
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="notes">Notlar</label>
+                <textarea id="notes" name="notes" rows="3">{{ school.notes if school else '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('schools.index') }}" class="btn btn-ghost">İptal</a>
+        <button type="submit" class="btn btn-primary">
+            {{ 'Güncelle' if school else 'Okul Ekle' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

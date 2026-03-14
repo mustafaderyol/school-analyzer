@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Karşılaştır — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>📊 Okul Karşılaştırması</h1>
+</div>
+
+<form method="GET" class="compare-selector">
+    <div class="compare-select-grid">
+        {% for school in schools %}
+        <label class="compare-school-label">
+            <input type="checkbox" name="ids" value="{{ school.id }}"
+                {% if school.id in selected_ids %}checked{% endif %}
+                onchange="this.form.submit()">
+            <span class="compare-school-box">
+                <span class="school-name">{{ school.name }}</span>
+                <span class="completion">%{{ school.completion_percentage }} tamamlandı</span>
+            </span>
+        </label>
+        {% endfor %}
+    </div>
+</form>
+
+{% if selected_schools|length >= 2 %}
+<div class="comparison-table-wrapper">
+    {% for cat_id, cat_data in comparison_data.items() %}
+    <div class="comparison-category">
+        <h2 class="comparison-category-title" onclick="toggleCategory(this)">
+            {{ cat_data.category.name }}
+            <span class="chevron">▼</span>
+        </h2>
+        <div class="category-content">
+            {% for sub_id, sub_data in cat_data.subcategories.items() %}
+            <h3 class="comparison-sub-title">{{ sub_data.subcategory.name }}</h3>
+            <div class="table-scroll">
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th class="question-col">Soru</th>
+                            {% for school in selected_schools %}
+                            <th class="school-col">{{ school.name }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for q_data in sub_data.questions %}
+                        <tr class="{% if q_data.question.is_critical %}row-critical{% endif %}">
+                            <td class="question-cell">
+                                {{ q_data.question.question_text }}
+                                {% if q_data.question.is_critical %}<span class="critical-dot"></span>{% endif %}
+                            </td>
+                            {% for school in selected_schools %}
+                            {% set ans = q_data.answers.get(school.id) %}
+                            <td class="answer-cell {% if ans %}has-answer{% endif %}
+                                {% if q_data.question.answer_type.code == 'boolean' and ans %}
+                                    {% if ans.answer_boolean %}bool-yes{% else %}bool-no{% endif %}
+                                {% endif %}">
+                                {{ ans.display_value if ans else '-' }}
+                            </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% elif schools|length < 2 %}
+<div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h2>Karşılaştırma yapılamıyor</h2>
+    <p>En az 2 okul eklemeniz gerekiyor.</p>
+    <a href="{{ url_for('schools.new_school') }}" class="btn btn-primary">Okul Ekle</a>
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">☝️</div>
+    <h2>Okul Seçin</h2>
+    <p>Karşılaştırmak istediğiniz en az 2 okulu yukarıdan seçin.</p>
+</div>
+{% endif %}
+{% endblock %}

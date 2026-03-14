@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Kritik Hızlı Eleme — School Analyzer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <h1>⚡ Kritik Hızlı Eleme Tablosu</h1>
+        <p class="subtitle">Tüm okullardaki en kritik sorular ve hızlı karşılaştırma</p>
+    </div>
+</div>
+
+{% if schools|length >= 1 %}
+<div class="comparison-table-wrapper" style="margin-top: 0;">
+    <div class="comparison-category">
+        <div class="table-scroll">
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th class="question-col">Soru (Kritik)</th>
+                        {% for school in schools %}
+                        <th class="school-col">
+                            <a href="{{ url_for('schools.detail', school_id=school.id) }}" style="color: inherit;">
+                                {{ school.name }}
+                            </a>
+                        </th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q_data in question_data %}
+                    <tr class="row-critical">
+                        <td class="question-cell">
+                            {{ q_data.question.question_text }}
+                            <span class="critical-dot"></span>
+                        </td>
+                        {% for school in schools %}
+                        {% set ans = q_data.answers.get(school.id) %}
+                        <td class="answer-cell {% if ans %}has-answer{% endif %}
+                            {% if q_data.question.answer_type.code == 'boolean' and ans %}
+                                {% if ans.answer_boolean %}bool-yes{% else %}bool-no{% endif %}
+                            {% endif %}">
+                            {{ ans.display_value if ans else '-' }}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Synchronize header and cell padding/alignment to prevent shifting */
+.comparison-table th,
+.comparison-table .row-critical td {
+    padding: 0.85rem 0.75rem;
+    vertical-align: middle;
+}
+.comparison-table th {
+    border-bottom: 2px solid var(--warning);
+}
+.comparison-category {
+    border-color: var(--warning);
+    box-shadow: 0 4px 20px rgba(245, 166, 35, 0.05);
+}
+</style>
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <h2>Henüz okul eklenmemiş</h2>
+    <p>Hızlı eleme tablosunu görmek için okul ekleyin.</p>
+    <a href="{{ url_for('schools.new_school') }}" class="btn btn-primary">İlk Okulu Ekle</a>
+</div>
+{% endif %}
+{% endblock %}

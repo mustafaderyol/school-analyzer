@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Düzenle: ' ~ category.name if category else 'Yeni Kategori' }} — Yönetim{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.category_list') }}" class="back-link">← Kategorilere Dön</a>
+        <h1>{{ 'Kategori Düzenle' if category else 'Yeni Kategori Ekle' }}</h1>
+    </div>
+</div>
+
+<form method="POST" class="form-card" style="max-width: 800px; margin: 0 auto;">
+    <div class="form-section">
+        <div class="form-grid">
+            <div class="form-group form-group-wide">
+                <label for="name">Kategori Adı *</label>
+                <input type="text" id="name" name="name" required placeholder="Örn: Konaklama Seçenekleri"
+                    value="{{ category.name if category else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="display_order">Görünüm Sırası</label>
+                <input type="number" id="display_order" name="display_order"
+                    value="{{ category.display_order if category else '0' }}">
+            </div>
+            <div class="form-group">
+                <label for="icon">İkon (Emoji)</label>
+                <input type="text" id="icon" name="icon" placeholder="Örn: 🏠"
+                    value="{{ category.icon if category else '' }}">
+            </div>
+            <div class="form-group form-group-wide">
+                <label for="description">Açıklama</label>
+                <textarea id="description" name="description" rows="3"
+                    placeholder="Kullanıcılara bu gruptaki soruların amacını açıklar...">{{ category.description if category else '' }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <a href="{{ url_for('admin.category_list') }}" class="btn btn-ghost">İptal</a>
+        <button type="submit" class="btn btn-primary">
+            {{ 'Güncelle' if category else 'Kaydet' }}
+        </button>
+    </div>
+</form>
+{% endblock %}

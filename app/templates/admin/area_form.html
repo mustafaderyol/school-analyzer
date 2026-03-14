@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Bölge Düzenle' if area else 'Yeni Bölge Ekle' }} — Yönetim Paneli{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="page-header-content">
+        <a href="{{ url_for('admin.area_list') }}" class="back-link">← Bölgeler Listesine Dön</a>
+        <h1>{{ 'Bölge Düzenle' if area else 'Yeni Bölge Ekle' }}</h1>
+    </div>
+</div>
+
+<form method="POST" action="">
+    <div class="form-card">
+        <div class="form-section">
+            <h2 class="form-section-title">📍 Bölge Bilgileri</h2>
+
+            <div class="form-grid">
+                <div class="form-group form-group-wide">
+                    <label for="name">Bölge Adı *</label>
+                    <input type="text" id="name" name="name" required placeholder="Bölge adı (örn: Camden, Greenwich)"
+                        value="{{ area.name if area else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="zone">Londra Zone Bilgisi</label>
+                    <input type="text" id="zone" name="zone" placeholder="Zone (örn: Zone 2-3)"
+                        value="{{ area.zone if area else '' }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="safety_rating">Güvenlik Notu (1-10)</label>
+                    <input type="number" id="safety_rating" name="safety_rating" min="1" max="10"
+                        placeholder="Bölgenin genel güvenliği" value="{{ area.safety_rating if area else '' }}">
+                </div>
+
+                <div class="form-group form-group-wide">
+                    <label for="description">Bölge Hakkında Açıklama</label>
+                    <textarea id="description" name="description" rows="3"
+                        placeholder="Bu bölgeyle ilgili öğrencilerin bilmesi gereken önemli detaylar...">{{ area.description if area else '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('admin.area_list') }}" class="btn btn-ghost">İptal</a>
+            <button type="submit" class="btn btn-primary btn-glow">{{ 'Güncelle' if area else 'Kaydet' }}</button>
+        </div>
+    </div>
+</form>
+{% endblock %}
